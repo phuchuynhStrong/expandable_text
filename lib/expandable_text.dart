@@ -14,17 +14,18 @@ class ExpandableText extends StatefulWidget {
     this.linkColor,
     this.linkEllipsis = true,
     this.style,
+    this.linkStyle,
     this.textDirection,
     this.textAlign,
     this.textScaleFactor,
     this.maxLines = 2,
     this.semanticsLabel,
-  }) : assert(text != null),
-       assert(expandText != null),
-       assert(expanded != null),
-       assert(linkEllipsis != null),
-       assert(maxLines != null && maxLines > 0),
-       super(key: key);
+  })  : assert(text != null),
+        assert(expandText != null),
+        assert(expanded != null),
+        assert(linkEllipsis != null),
+        assert(maxLines != null && maxLines > 0),
+        super(key: key);
 
   final String text;
   final String expandText;
@@ -34,6 +35,7 @@ class ExpandableText extends StatefulWidget {
   final Color linkColor;
   final bool linkEllipsis;
   final TextStyle style;
+  final TextStyle linkStyle;
   final TextDirection textDirection;
   final TextAlign textAlign;
   final double textScaleFactor;
@@ -53,8 +55,7 @@ class ExpandableTextState extends State<ExpandableText> {
     super.initState();
 
     _expanded = widget.expanded;
-    _tapGestureRecognizer = TapGestureRecognizer()
-      ..onTap = _toggleExpanded;
+    _tapGestureRecognizer = TapGestureRecognizer()..onTap = _toggleExpanded;
   }
 
   @override
@@ -79,25 +80,29 @@ class ExpandableTextState extends State<ExpandableText> {
       effectiveTextStyle = defaultTextStyle.style.merge(widget.style);
     }
 
-    final collapseText = widget.collapseText != null ? ' ${widget.collapseText}' : '';
+    final collapseText =
+        widget.collapseText != null ? ' ${widget.collapseText}' : '';
     final expandText = widget.expandText;
 
     final linkText = _expanded ? collapseText : expandText;
     final linkColor = widget.linkColor ?? Theme.of(context).accentColor;
-    final linkTextStyle = effectiveTextStyle.copyWith(color: linkColor);
+    final linkTextStyle =
+        widget.linkStyle ?? effectiveTextStyle.copyWith(color: linkColor);
 
     final link = TextSpan(
       children: [
-        if (!_expanded) TextSpan(
-          text: '\u2026 ',
-          style: widget.linkEllipsis ? linkTextStyle : effectiveTextStyle,
-          recognizer: widget.linkEllipsis ? _tapGestureRecognizer : null,
-        ),
-        if (linkText.length > 0) TextSpan(
-          text: linkText,
-          style: linkTextStyle,
-          recognizer: _tapGestureRecognizer,
-        ),
+        if (!_expanded)
+          TextSpan(
+            text: '\u2026 ',
+            style: widget.linkEllipsis ? linkTextStyle : effectiveTextStyle,
+            recognizer: widget.linkEllipsis ? _tapGestureRecognizer : null,
+          ),
+        if (linkText.length > 0)
+          TextSpan(
+            text: linkText,
+            style: linkTextStyle,
+            recognizer: _tapGestureRecognizer,
+          ),
       ],
     );
 
@@ -111,9 +116,12 @@ class ExpandableTextState extends State<ExpandableText> {
         assert(constraints.hasBoundedWidth);
         final double maxWidth = constraints.maxWidth;
 
-        final textAlign = widget.textAlign ?? defaultTextStyle.textAlign ?? TextAlign.start;
-        final textDirection = widget.textDirection ?? Directionality.of(context);
-        final textScaleFactor = widget.textScaleFactor ?? MediaQuery.textScaleFactorOf(context);
+        final textAlign =
+            widget.textAlign ?? defaultTextStyle.textAlign ?? TextAlign.start;
+        final textDirection =
+            widget.textDirection ?? Directionality.of(context);
+        final textScaleFactor =
+            widget.textScaleFactor ?? MediaQuery.textScaleFactorOf(context);
         final locale = Localizations.localeOf(context, nullOk: true);
 
         TextPainter textPainter = TextPainter(
@@ -141,9 +149,7 @@ class ExpandableTextState extends State<ExpandableText> {
 
           textSpan = TextSpan(
             style: effectiveTextStyle,
-            text: _expanded
-                ? widget.text
-                : widget.text.substring(0, endOffset),
+            text: _expanded ? widget.text : widget.text.substring(0, endOffset),
             children: <TextSpan>[
               link,
             ],
